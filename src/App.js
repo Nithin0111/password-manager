@@ -14,5 +14,6 @@ function App() {
 
 const Container = styled.div`
   display: flex;
+  max-width: 100%;
 `;
 export default App;
