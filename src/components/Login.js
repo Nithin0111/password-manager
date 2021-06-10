@@ -1,14 +1,17 @@
 import React from "react";
+import { connect } from "react-redux";
+import { Redirect } from "react-router";
 import styled from "styled-components";
+import { setUserApi } from "../actions";
 
 const Login = (props) => {
   return (
     <Container>
+      {props.user && <Redirect to="/home" />}
       <Content>
         <img src="/images/login.png" alt="" />
         <h1>Welcome to nsp password manager</h1>
-        <button>
-          {" "}
+        <button type="button" onClick={() => props.signIn()}>
           <img src="/images/google-logo.webp" alt="" /> Signin With Google
         </button>
       </Content>
@@ -54,4 +57,14 @@ const Content = styled.div`
   }
 `;
 
-export default Login;
+const mapStateToProps = (state) => {
+  return {
+    user: state.userState.user,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => ({
+  signIn: () => dispatch(setUserApi()),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);

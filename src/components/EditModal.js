@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import CryptoJS from "crypto-js";
+import { postDataApi } from "../actions";
+import { connect } from "react-redux";
 
 const EditModal = (props) => {
   const [openModal, setOpenModal] = useState(props.open);
-  const [securePassword, setSecurePassword] = useState("");
   const [secretKey, setSecretKey] = useState("MySecretForAesEncryption");
+  const [url, setUrl] = useState("");
+  const [siteName, setSiteName] = useState("");
+  const [email, setEmail] = useState("");
+  const [securePassword, setSecurePassword] = useState("");
+  const [notes, setNotes] = useState("");
 
   const generatePassword = () => {
     var specials = "!@#$%^&*()_+{}:\"<>?|[];',./`~";
@@ -68,22 +74,66 @@ const EditModal = (props) => {
 
     // console.log(originalText);
   };
+
+  const postData = (e) => {
+    e.preventDefault();
+    if (e.target !== e.currentTarget) {
+      return;
+    }
+
+    const payload = {
+      user: props.user,
+      url: url,
+      siteName: siteName,
+      email: email,
+      securePassword: securePassword,
+      notes: notes,
+    };
+
+    props.postData(payload);
+    reset(e);
+  };
+
+  const reset = (e) => {
+    setOpenModal(false);
+    setUrl("");
+    setSiteName("");
+    setEmail("");
+    setSecurePassword("");
+    setNotes("");
+  };
+
   console.log(props.action);
   return (
     <>
       {openModal && (
         <Container>
           <Content>
-            <div className="close" onClick={() => setOpenModal(false)}>
+            <div className="close" onClick={(event) => reset(event)}>
               <p>+</p>
             </div>
             <form>
               <h2>{props.action == "edit" ? "Edit" : "Add"} Info:</h2>
-              <input type="text" placeholder="URL:eg:google.com,gmail.com" />
+              <input
+                type="text"
+                placeholder="URL:eg:google.com,gmail.com"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+              />
               <br />
-              <input type="text" placeholder="SiteName:" />
+              <input
+                type="text"
+                placeholder="SiteName:"
+                value={siteName}
+                onChange={(e) => setSiteName(e.target.value)}
+              />
               <br />
-              <input type="text" placeholder="Username/Email:" />
+              <input
+                type="text"
+                placeholder="Username/Email:"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
               <br />
               <input
                 type="passoword"
@@ -113,9 +163,16 @@ const EditModal = (props) => {
               )}
 
               <br />
-              <input type="text" placeholder="Notes" />
+              <input
+                type="text"
+                placeholder="Notes"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+              />
               <br />
-              <button className="submitBtn">Save Details</button>
+              <button className="submitBtn" onClick={postData}>
+                Save Details
+              </button>
             </form>
           </Content>
         </Container>
@@ -189,4 +246,14 @@ const Content = styled.div`
   }
 `;
 
-export default EditModal;
+const mapStateToProps = (state) => {
+  return {
+    user: state.userState.user,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => ({
+  postData: (payload) => dispatch(postDataApi(payload)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(EditModal);
