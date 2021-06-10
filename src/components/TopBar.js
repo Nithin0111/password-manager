@@ -59,8 +59,8 @@ const Content = styled.div`
     background-color: #fff;
 
     svg {
-      width: 30px;
-      height: 30px;
+      width: 18px;
+      height: 18px;
       margin-right: 10px;
       margin-left: 10px;
     }
@@ -74,7 +74,7 @@ const Content = styled.div`
   div {
     display: flex;
     align-items: center;
-    padding: 12px;
+    padding: 20px;
     img {
       margin-right: 10px;
     }
