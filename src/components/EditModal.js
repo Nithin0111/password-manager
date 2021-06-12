@@ -5,13 +5,17 @@ import { postDataApi } from "../actions";
 import { connect } from "react-redux";
 
 const EditModal = (props) => {
-  const [openModal, setOpenModal] = useState(props.open);
+  const [openModal, setOpenModal] = useState(props.isOpen);
   const [secretKey, setSecretKey] = useState("MySecretForAesEncryption");
   const [url, setUrl] = useState("");
   const [siteName, setSiteName] = useState("");
   const [email, setEmail] = useState("");
   const [securePassword, setSecurePassword] = useState("");
   const [notes, setNotes] = useState("");
+
+  useEffect(() => {
+    setOpenModal(props.isOpen);
+  }, []);
 
   const generatePassword = () => {
     var specials = "!@#$%^&*()_+{}:\"<>?|[];',./`~";
@@ -95,7 +99,7 @@ const EditModal = (props) => {
   };
 
   const reset = (e) => {
-    setOpenModal(false);
+    setOpenModal(!openModal);
     setUrl("");
     setSiteName("");
     setEmail("");
@@ -103,77 +107,88 @@ const EditModal = (props) => {
     setNotes("");
   };
 
-  console.log(props.action);
+  console.log(props.isOpen);
+  console.log(props.id);
+  console.log(openModal);
+
   return (
     <>
-      {openModal && (
+      {openModal && props.userData && (
         <Container>
+          {console.log("Getting here")}
           <Content>
             <div className="close" onClick={(event) => reset(event)}>
               <p>+</p>
             </div>
-            <form>
-              <h2>{props.action == "edit" ? "Edit" : "Add"} Info:</h2>
-              <input
-                type="text"
-                placeholder="URL:eg:google.com,gmail.com"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-              />
-              <br />
-              <input
-                type="text"
-                placeholder="SiteName:"
-                value={siteName}
-                onChange={(e) => setSiteName(e.target.value)}
-              />
-              <br />
-              <input
-                type="text"
-                placeholder="Username/Email:"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <br />
-              <input
-                type="passoword"
-                placeholder="Site Password"
-                value={securePassword}
-                onChange={(e) => setSecurePassword(e.target.value)}
-              />
+            {props.userData.map((user, key) => {
+              if (props.id === user.id) {
+                setUrl(user.userData.url);
+                setSiteName(user.userData.siteName);
+                setSecurePassword(user.userData.securePassword);
+                setNotes(user.userData.notes);
+                console.log(user);
+                return (
+                  <form key={key}>
+                    <h2>Edit Info:</h2>
+                    <input
+                      type="text"
+                      placeholder="URL:eg:google.com,gmail.it,dribbleup.com"
+                      value={url}
+                      onChange={(e) => setUrl(e.target.value)}
+                    />
+                    <br />
+                    <input
+                      type="text"
+                      placeholder="SiteName:"
+                      value={siteName}
+                      onChange={(e) => setSiteName(e.target.value)}
+                    />
+                    <br />
+                    <input
+                      type="text"
+                      placeholder="Username/Email:"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <br />
+                    <input
+                      type="passoword"
+                      placeholder="Site Password"
+                      value={securePassword}
+                      onChange={(e) => setSecurePassword(e.target.value)}
+                    />
 
-              {props.action === "add" && (
-                <>
-                  <br />
-                  <button
-                    type="button"
-                    className="genPwd"
-                    onClick={generatePassword}
-                  >
-                    Generate Password
-                  </button>
-                  <button
-                    type="button"
-                    className="genPwd"
-                    onClick={encryptPassword}
-                  >
-                    Encrypt Password
-                  </button>
-                </>
-              )}
+                    <br />
+                    <button
+                      type="button"
+                      className="genPwd"
+                      onClick={generatePassword}
+                    >
+                      Change Password
+                    </button>
+                    <button
+                      type="button"
+                      className="genPwd"
+                      onClick={encryptPassword}
+                    >
+                      Encrypt Changed Password
+                    </button>
 
-              <br />
-              <input
-                type="text"
-                placeholder="Notes"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-              />
-              <br />
-              <button className="submitBtn" onClick={postData}>
-                Save Details
-              </button>
-            </form>
+                    <br />
+                    <input
+                      type="text"
+                      placeholder="Notes"
+                      value={user.userData.notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                    />
+                    <br />
+                    <button className="submitBtn" onClick={postData}>
+                      Save Details
+                    </button>
+                  </form>
+                );
+              }
+            })}
           </Content>
         </Container>
       )}
@@ -183,7 +198,10 @@ const EditModal = (props) => {
 
 const Container = styled.div`
   position: absolute;
-  width: inherit;
+  width: 80%;
+  @media (max-width: 1100px) {
+    width: 70%;
+  }
   height: 100%;
   top: 0%;
   background-color: rgba(0, 0, 0, 0.6);
@@ -249,6 +267,7 @@ const Content = styled.div`
 const mapStateToProps = (state) => {
   return {
     user: state.userState.user,
+    userData: state.userState.userData,
   };
 };
 

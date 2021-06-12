@@ -1,53 +1,68 @@
 import React, { useState } from "react";
+import { useEffect } from "react";
+import { connect } from "react-redux";
+import { Redirect } from "react-router-dom";
 import styled from "styled-components";
+import { getDataApi } from "../actions";
 import EditModal from "./EditModal";
 import TopBar from "./TopBar";
 
-const Home = () => {
+const Home = (props) => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [action, setAction] = useState("");
+  const [editId, setEditId] = useState("");
 
-  const handleBtn = (action) => {
+  const handleBtn = (action, userId) => {
     setShowEditModal(!showEditModal);
+    setEditId(userId);
     setAction(action);
   };
+
+  useEffect(() => {
+    props.user && props.getData(props.user);
+  }, []);
 
   return (
     <Container>
       <TopBar />
-
+      <h1>All passwords</h1>
+      {!props.user && <Redirect to="/" />}
       <Content>
-        <h1>All passwords</h1>
-        <PasswordContainer>
-          <div>
-            <img
-              className="hero-img"
-              src="//logo.clearbit.com/gmail.it"
-              alt=""
-            />
-          </div>
-          <h3>Gmail</h3>
-          <p>nithinchowdary0705@gmail.com</p>
-          <OptionsContainer>
+        {console.log(props.userData)}
+        {props.userData.map((user, key) => (
+          <PasswordContainer key={key}>
             <div>
-              <div
-                title="Edit"
-                className="pwd-btn"
-                onClick={() => handleBtn("edit")}
-              >
-                <img src="/images/settings-icon.png" alt="" />
-              </div>
-              <div title="Delete" className="pwd-btn">
-                <img src="/images/delete-icon.png" alt="" />
-              </div>
+              <img
+                className="hero-img"
+                src="//logo.clearbit.com/gmail.it"
+                alt=""
+              />
             </div>
-            <LaunchButton>
+
+            <h3>{user.userData.siteName}</h3>
+            <p>{user.userData.email}</p>
+            <OptionsContainer>
               <div>
-                <p>Launch</p>
+                <div
+                  title="Edit"
+                  className="pwd-btn"
+                  onClick={() => handleBtn("edit", user.id)}
+                >
+                  <img src="/images/settings-icon.png" alt="" />
+                </div>
+                <div title="Delete" className="pwd-btn">
+                  <img src="/images/delete-icon.png" alt="" />
+                </div>
               </div>
-            </LaunchButton>
-          </OptionsContainer>
-        </PasswordContainer>
+              <LaunchButton>
+                <div>
+                  <p>Launch</p>
+                </div>
+              </LaunchButton>
+            </OptionsContainer>
+          </PasswordContainer>
+        ))}
+        {showEditModal && <EditModal isOpen={showEditModal} id={editId} />}
       </Content>
       <AddButton onClick={() => handleBtn("add")}>
         <svg
@@ -60,21 +75,23 @@ const Home = () => {
           <path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2z" />
         </svg>
       </AddButton>
-      {showEditModal && <EditModal open={showEditModal} action={action} />}
     </Container>
   );
 };
 
 const Container = styled.div`
   width: 80%;
+  h1 {
+    padding: 16px;
+  }
   @media (max-width: 1100px) {
     width: 70%;
   }
 `;
 const Content = styled.div`
-  h1 {
-    padding: 16px;
-  }
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
 `;
 
 const PasswordContainer = styled.div`
@@ -167,4 +184,15 @@ const LaunchButton = styled.div`
   }
 `;
 
-export default Home;
+const mapStateToProps = (state) => {
+  return {
+    user: state.userState.user,
+    userData: state.userState.userData,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => ({
+  getData: (payload) => dispatch(getDataApi(payload)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);
