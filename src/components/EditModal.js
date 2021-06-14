@@ -74,11 +74,12 @@ const EditModal = (props) => {
     var ciphertext = CryptoJS.AES.encrypt(securePassword, secretKey).toString();
     console.log(ciphertext);
     setSecurePassword(ciphertext);
-    // Decrypt
-    // var bytes = CryptoJS.AES.decrypt(ciphertext, secretKey);
-    // var originalText = bytes.toString(CryptoJS.enc.Utf8);
+  };
 
-    // console.log(originalText);
+  const decryptPassword = (password) => {
+    var bytes = CryptoJS.AES.decrypt(password, secretKey);
+    var originalText = bytes.toString(CryptoJS.enc.Utf8);
+    setSecurePassword(originalText);
   };
 
   const postData = (e) => {
@@ -135,7 +136,7 @@ const EditModal = (props) => {
           setUrl(user.userData.url);
           setSiteName(user.userData.siteName);
           setEmail(user.userData.email);
-          setSecurePassword(user.userData.securePassword);
+          decryptPassword(user.userData.securePassword);
           setNotes(user.userData.notes);
         }
       });
