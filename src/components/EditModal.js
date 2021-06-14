@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import CryptoJS from "crypto-js";
-import { postDataApi } from "../actions";
+import { postDataApi, updateDataApi } from "../actions";
 import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
 
@@ -100,6 +100,25 @@ const EditModal = (props) => {
     reset(e);
   };
 
+  const updateData = (e) => {
+    e.preventDefault();
+    if (e.target !== e.currentTarget) {
+      return;
+    }
+
+    const payload = {
+      id: props.id,
+      url: url,
+      siteName: siteName,
+      email: email,
+      securePassword: securePassword,
+      notes: notes,
+    };
+
+    props.updateData(payload);
+    reset(e);
+  };
+
   const reset = (e) => {
     setOpenModal(!openModal);
     setUrl("");
@@ -190,9 +209,15 @@ const EditModal = (props) => {
                       onChange={(e) => setNotes(e.target.value)}
                     />
                     <br />
-                    <button className="submitBtn" onClick={postData}>
-                      Save Details
-                    </button>
+                    {props.action === "edit" ? (
+                      <button className="submitBtn" onClick={updateData}>
+                        Update Details
+                      </button>
+                    ) : (
+                      <button className="submitBtn" onClick={postData}>
+                        Save Details
+                      </button>
+                    )}
                   </form>
                 );
               }
@@ -345,6 +370,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => ({
   postData: (payload) => dispatch(postDataApi(payload)),
+  updateData: (payload) => dispatch(updateDataApi(payload)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditModal);

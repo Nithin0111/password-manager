@@ -108,3 +108,21 @@ export function deleteDataApi(payload) {
       .catch((error) => alert(error.message));
   };
 }
+
+export function updateDataApi(payload) {
+  return (dispatch) => {
+    db.collection("userData")
+      .doc(payload.id)
+      .update({
+        url: payload.url,
+        siteName: payload.siteName,
+        email: payload.email,
+        securePassword: payload.securePassword,
+        notes: payload.notes,
+      })
+      .then(() => {
+        console.log("Update data Success");
+      })
+      .catch((error) => alert(error.message));
+  };
+}
