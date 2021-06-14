@@ -48,11 +48,13 @@ export function SignOutApi() {
 }
 
 export function postDataApi(payload) {
-  console.log(payload.user.email);
+  console.log(payload);
   return (dispatch) => {
     db.collection("userData")
       .add({
-        user: payload,
+        actor: {
+          user: payload.user.email,
+        },
         url: payload.url,
         siteName: payload.siteName,
         email: payload.email,
@@ -61,7 +63,6 @@ export function postDataApi(payload) {
       })
       .then((docRef) => {
         console.log("Document written with ID: ", docRef.id);
-        dispatch(getData(payload));
       })
       .catch((error) => {
         console.error("Error adding document: ", error);
@@ -86,5 +87,17 @@ export function getDataApi(payload) {
       .catch((error) => {
         return alert(error.message);
       });
+  };
+}
+
+export function deleteDataApi(payload) {
+  return (dispatch) => {
+    db.collection("userData")
+      .doc(payload)
+      .delete()
+      .then(() => {
+        console.log("Document deleted successfully");
+      })
+      .catch((error) => alert(error.message));
   };
 }

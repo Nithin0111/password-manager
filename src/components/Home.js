@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
 import styled from "styled-components";
-import { getDataApi } from "../actions";
+import { deleteDataApi, getDataApi } from "../actions";
 import EditModal from "./EditModal";
 import TopBar from "./TopBar";
 
@@ -11,6 +11,7 @@ const Home = (props) => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [action, setAction] = useState("");
   const [editId, setEditId] = useState("");
+  const [localUserData, setLocalUserData] = useState([]);
 
   const handleBtn = (action, userId) => {
     setShowEditModal(!showEditModal);
@@ -21,6 +22,8 @@ const Home = (props) => {
   useEffect(() => {
     props.user && props.getData(props.user);
   }, []);
+
+  console.log(localUserData);
 
   return (
     <Container>
@@ -34,7 +37,7 @@ const Home = (props) => {
             <div>
               <img
                 className="hero-img"
-                src="//logo.clearbit.com/gmail.it"
+                src={`//logo.clearbit.com/${user.userData.url}`}
                 alt=""
               />
             </div>
@@ -50,7 +53,11 @@ const Home = (props) => {
                 >
                   <img src="/images/settings-icon.png" alt="" />
                 </div>
-                <div title="Delete" className="pwd-btn">
+                <div
+                  title="Delete"
+                  className="pwd-btn"
+                  onClick={() => props.deleteData(user.id)}
+                >
                   <img src="/images/delete-icon.png" alt="" />
                 </div>
               </div>
@@ -62,8 +69,16 @@ const Home = (props) => {
             </OptionsContainer>
           </PasswordContainer>
         ))}
-        {showEditModal && <EditModal isOpen={showEditModal} id={editId} />}
+        {showEditModal && (
+          <EditModal isOpen={showEditModal} id={editId} action={action} />
+        )}
       </Content>
+      {showEditModal && (
+        <CloseButton onClick={() => setShowEditModal(!showEditModal)}>
+          <p>Close</p>
+        </CloseButton>
+      )}
+
       <AddButton onClick={() => handleBtn("add")}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -184,6 +199,19 @@ const LaunchButton = styled.div`
   }
 `;
 
+const CloseButton = styled.div`
+  position: absolute;
+  bottom: 5.2vh;
+  right: 5vw;
+  background-color: coral;
+  padding: 12px;
+  border: 1px solid red;
+  cursor: pointer;
+  p {
+    font-weight: bold;
+  }
+`;
+
 const mapStateToProps = (state) => {
   return {
     user: state.userState.user,
@@ -193,6 +221,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => ({
   getData: (payload) => dispatch(getDataApi(payload)),
+  deleteData: (payload) => dispatch(deleteDataApi(payload)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home);
